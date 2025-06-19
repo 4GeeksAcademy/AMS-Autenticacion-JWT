@@ -1,0 +1,119 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: #f3f4f6;
+  color: #222;
+  font-family: "Segoe UI", Arial, sans-serif;
+  min-height: 100vh;
+}
+
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 0 2rem;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+nav a,
+nav button {
+  color: #444;
+  background: none;
+  border: none;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+nav a:hover,
+nav button:hover {
+  background: #f3f4f6;
+  color: #111;
+}
+
+.main-content {
+  padding-top: 80px; /* Espacio para el navbar */
+  min-height: calc(100vh - 80px);
+  background: #f3f4f6;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.web-container {
+  background: #fff;
+  padding: 2.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  min-width: 320px;
+  max-width: 420px;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+input[type="email"],
+input[type="password"] {
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 1rem;
+  background: #f9fafb;
+  transition: border 0.2s;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus {
+  border: 1.5px solid #888;
+  outline: none;
+}
+
+button[type="submit"] {
+  background: #444;
+  color: #fff;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button[type="submit"]:hover {
+  background: #222;
+}
+
+h1,
+h2,
+h3 {
+  color: #222;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 600px) {
+  .web-container {
+    padding: 1.2rem 0.5rem;
+    min-width: unset;
+    max-width: 98vw;
+  }
+  nav {
+    padding: 0 0.5rem;
+  }
+}

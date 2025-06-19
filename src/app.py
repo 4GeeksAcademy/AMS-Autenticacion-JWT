@@ -10,13 +10,23 @@ from api.models import db
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_cors import CORS
 
 # from models import Person
+
+# Simple in-memory users database (for demonstration purposes only)
+users_db = {}
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../dist/')
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['JWT_SECRET_KEY'] = 'super-secret-key'
+jwt = JWTManager(app)
+CORS(app)
 app.url_map.strict_slashes = False
 
 # database condiguration
@@ -57,6 +67,8 @@ def sitemap():
     return send_from_directory(static_file_dir, 'index.html')
 
 # any other endpoint will try to serve it like a static file
+
+
 @app.route('/<path:path>', methods=['GET'])
 def serve_any_other_file(path):
     if not os.path.isfile(os.path.join(static_file_dir, path)):
@@ -66,7 +78,47 @@ def serve_any_other_file(path):
     return response
 
 
+@app.route("/api/signup", methods=["POST"])
+def signup():
+    data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
+    if not email or not password:
+        return jsonify({"msg": "Faltan datos"}), 400
+    if email in users_db:
+        return jsonify({"msg": "Usuario ya existe"}), 400
+    users_db[email] = password
+    return jsonify({"msg": "Usuario creado"}), 201
+
+
+@app.route("/api/token", methods=["POST"])
+def login():
+    data = request.get_json()
+    email = data.get("email")
+    password = data.get("password")
+    if not email or not password:
+        return jsonify({"msg": "Faltan datos"}), 400
+    if users_db.get(email) != password:
+        return jsonify({"msg": "Credenciales incorrectas"}), 401
+    token = create_access_token(identity=email)
+    return jsonify({"token": token}), 200
+
+
+@app.route("/api/private", methods=["GET"])
+@jwt_required()
+def private():
+    current_user = get_jwt_identity()
+    return jsonify({"msg": f"Hola {current_user}, esta es una ruta privada"}), 200
+
+
+@app.route("/", methods=["GET"])
+def root():
+    return "¡El backend Flask está funcionando correctamente!", 200
+
+
 # this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     PORT = int(os.environ.get('PORT', 3001))
     app.run(host='0.0.0.0', port=PORT, debug=True)
