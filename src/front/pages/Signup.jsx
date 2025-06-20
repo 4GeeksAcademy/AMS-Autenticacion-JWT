@@ -90,6 +90,8 @@ const Signup = () => {
       <h2>Registro</h2>
       <input
         type="email"
+        name="email"
+        id="email"
         placeholder="Correo electrónico"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
@@ -97,6 +99,8 @@ const Signup = () => {
       />
       <input
         type="password"
+        name="password"
+        id="password"
         placeholder="Contraseña"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
@@ -104,6 +108,8 @@ const Signup = () => {
       />
       <input
         type="password"
+        name="repeatPassword"
+        id="repeatPassword"
         placeholder="Repite la contraseña"
         value={repeatPassword}
         onChange={(e) => setRepeatPassword(e.target.value)}
