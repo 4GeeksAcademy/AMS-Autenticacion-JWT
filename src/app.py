@@ -26,7 +26,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'super-secret-key'
 jwt = JWTManager(app)
-CORS(app)  # <--- SOLO ESTA LÍNEA
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 app.url_map.strict_slashes = False
 
 # database condiguration
