@@ -1,51 +1,31 @@
-"""
-This module takes care of starting the API Server, Loading the DB and Adding the endpoints
-"""
-from flask import Flask, request, jsonify, url_for, Blueprint
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from .models import db, User
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import create_access_token
+from .models import db
+from .utils import APIException
 
 api = Blueprint('api', __name__)
 
-
-@api.route('/hello', methods=['POST', 'GET'])
-def handle_hello():
-
-    response_body = {
-        "message": "Hello! I'm a message that came from the backend, check the network tab on the google inspector and you will see the GET request"
-    }
-
-    return jsonify(response_body), 200
-
+# Diccionario en memoria para usuarios (si no usas base de datos)
+users_db = {}
 
 @api.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
-    if User.query.filter_by(email=email).first():
+    email = data.get("email")
+    password = data.get("password")
+    if not email or not password:
+        return jsonify({"msg": "Faltan datos"}), 400
+    if email in users_db:
         return jsonify({"msg": "Usuario ya existe"}), 400
-    user = User(email=email, password=generate_password_hash(password))
-    db.session.add(user)
-    db.session.commit()
+    users_db[email] = password
     return jsonify({"msg": "Usuario creado"}), 201
 
-
-@api.route('/login', methods=['POST'])
+@api.route('/token', methods=['POST'])
 def login():
     data = request.get_json()
-    email = data.get('email')
-    password = data.get('password')
-    user = User.query.filter_by(email=email).first()
-    if not user or not check_password_hash(user.password, password):
-        return jsonify({"msg": "Credenciales inválidas"}), 401
-    access_token = create_access_token(identity=user.email)
-    return jsonify(access_token=access_token), 200
-
-
-@api.route('/private', methods=['GET'])
-@jwt_required()
-def private():
-    current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
+    email = data.get("email")
+    password = data.get("password")
+    if email in users_db and users_db[email] == password:
+        token = create_access_token(identity=email)
+        return jsonify({"token": token}), 200
+    return jsonify({"msg": "Credenciales incorrectas"}), 401

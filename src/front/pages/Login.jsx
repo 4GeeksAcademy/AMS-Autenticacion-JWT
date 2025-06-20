@@ -20,7 +20,8 @@ const Login = () => {
 			login(data.token); // Guarda el token en sessionStorage
 			navigate("/private"); // Redirige a la ruta privada
 		} else {
-			alert("Credenciales incorrectas");
+			const errorData = await resp.json();
+			alert(errorData.msg || "Credenciales incorrectas");
 		}
 	};
 

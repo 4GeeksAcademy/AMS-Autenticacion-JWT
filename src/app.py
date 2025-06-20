@@ -26,7 +26,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'super-secret-key'
 jwt = JWTManager(app)
-CORS(app)
+CORS(app)  # <--- SOLO ESTA LÍNEA
 app.url_map.strict_slashes = False
 
 # database condiguration
@@ -57,16 +57,10 @@ app.register_blueprint(api, url_prefix='/api')
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
-# generate sitemap with all your endpoints
 
-
-@app.route('/')
-def sitemap():
-    if ENV == "development":
-        return generate_sitemap(app)
-    return send_from_directory(static_file_dir, 'index.html')
-
-# any other endpoint will try to serve it like a static file
+@app.route("/", methods=["GET"])
+def root():
+    return "¡El backend Flask está funcionando correctamente!", 200
 
 
 @app.route('/<path:path>', methods=['GET'])
@@ -76,44 +70,6 @@ def serve_any_other_file(path):
     response = send_from_directory(static_file_dir, path)
     response.cache_control.max_age = 0  # avoid cache memory
     return response
-
-
-@app.route("/api/signup", methods=["POST"])
-def signup():
-    data = request.get_json()
-    email = data.get("email")
-    password = data.get("password")
-    if not email or not password:
-        return jsonify({"msg": "Faltan datos"}), 400
-    if email in users_db:
-        return jsonify({"msg": "Usuario ya existe"}), 400
-    users_db[email] = password
-    return jsonify({"msg": "Usuario creado"}), 201
-
-
-@app.route("/api/token", methods=["POST"])
-def login():
-    data = request.get_json()
-    email = data.get("email")
-    password = data.get("password")
-    if not email or not password:
-        return jsonify({"msg": "Faltan datos"}), 400
-    if users_db.get(email) != password:
-        return jsonify({"msg": "Credenciales incorrectas"}), 401
-    token = create_access_token(identity=email)
-    return jsonify({"token": token}), 200
-
-
-@app.route("/api/private", methods=["GET"])
-@jwt_required()
-def private():
-    current_user = get_jwt_identity()
-    return jsonify({"msg": f"Hola {current_user}, esta es una ruta privada"}), 200
-
-
-@app.route("/", methods=["GET"])
-def root():
-    return "¡El backend Flask está funcionando correctamente!", 200
 
 
 # this only runs if `$ python src/main.py` is executed

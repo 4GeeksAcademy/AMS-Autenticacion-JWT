@@ -10,6 +10,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Email:", email, "Password:", password);
     const resp = await fetch(
       `${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/token`,
       {
@@ -67,13 +68,20 @@ const Signup = () => {
 
     const resp = await fetch(`${import.meta.env.VITE_API_URL}/api/signup`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({
+        email,
+        password
+      }),
     });
     if (resp.ok) {
       navigate("/login");
     } else {
-      setError("Error al registrar usuario");
+      const errorData = await resp.json();
+      setError(errorData.msg || "Error al registrar usuario");
     }
   };
 
